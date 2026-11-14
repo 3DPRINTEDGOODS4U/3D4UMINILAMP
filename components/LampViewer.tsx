@@ -1,12 +1,16 @@
 
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import {
+  OrbitControls,
+  ContactShadows,
+  useGLTF,
+} from "@react-three/drei";
 import * as THREE from "three";
 
-// YOUR ACTUAL LAMP MODELS
+// YOUR 3 BASES AND 5 SHADES
 const BASE_FILES = [
   "/models/base-01.glb",
   "/models/base-02.glb",
@@ -21,10 +25,20 @@ const SHADE_FILES = [
   "/models/shade-05.glb",
 ];
 
+// Base heights from the previous configurator
 const BASE_HEIGHTS = [0.3551, 0.345, 0.3449];
 
-// HOW FAR THE SHADE OVERLAPS THE BASE
+// Smaller value raises the shade.
+// 0.10 is the starting overlap setting.
 const SHADE_OVERLAP = 0.10;
+
+type LampProps = {
+  base: number;
+  shade: number;
+  baseColor: string;
+  shadeColor: string;
+  lit: boolean;
+};
 
 type PartProps = {
   url: string;
@@ -33,8 +47,13 @@ type PartProps = {
   type: "base" | "shade";
 };
 
-// REALISTIC 3D PRINTED MATERIALS
-function Part({ url, color, glow = false, type }: PartProps) {
+// MATERIALS FOR 3D-PRINTED PARTS
+function Part({
+  url,
+  color,
+  glow = false,
+  type,
+}: PartProps) {
   const { scene } = useGLTF(url);
 
   const model = useMemo(() => {
@@ -44,87 +63,97 @@ function Part({ url, color, glow = false, type }: PartProps) {
     copy.traverse((item) => {
       if (!(item instanceof THREE.Mesh)) return;
 
-      // Recalculate normals to better reveal geometry.
       const geometry = item.geometry.clone();
+
+      // Compute surface normals for STL-derived geometry.
+      // Preserve the original ribbed mesh.
       geometry.computeVertexNormals();
       item.geometry = geometry;
 
-      item.material = isShade
-        ? new THREE.MeshPhysicalMaterial({
-            color: new THREE.Color(color),
-            roughness: 0.78,
-            metalness: 0,
-            side: THREE.DoubleSide,
+      if (isShade) {
+        item.material = new THREE.MeshPhysicalMaterial({
+          color: new THREE.Color(color),
+          roughness: 0.82,
+          metalness: 0,
+          side: THREE.DoubleSide,
 
-            // Subtle shade translucency
-            transparent: true,
-            opacity: 0.94,
-            depthWrite: true,
+          // Slight translucency
+          transparent: true,
+          opacity: 0.92,
+          depthWrite: true,
 
-            // Gentle warm glow, retaining shadows on ribs
-            emissive: new THREE.Color("#ffbd72"),
-            emissiveIntensity: glow ? 0.13 : 0,
-
-            clearcoat: 0,
-          })
-        : new THREE.MeshStandardMaterial({
-            color: new THREE.Color(color),
-            roughness: 0.88,
-            metalness: 0,
-            side: THREE.DoubleSide,
-          });
+          // Soft, warm visible glow when ON
+          emissive: new THREE.Color("#ffc98c"),
+          emissiveIntensity: glow ? 0.18 : 0,
+        });
+      } else {
+        item.material = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(color),
+          roughness: 0.86,
+          metalness: 0,
+          side: THREE.DoubleSide,
+        });
+      }
 
       item.castShadow = true;
-      item.receiveShadow = true;
+      item.receiveShadow = false;
     });
 
     return copy;
   }, [scene, color, glow, type]);
 
+  useEffect(() => {
+    return () => {
+      model.traverse((item) => {
+        if (item instanceof THREE.Mesh) {
+          item.material.dispose();
+          item.geometry.dispose();
+        }
+      });
+    };
+  }, [model]);
+
   return <primitive object={model} />;
 }
 
-// PROCEDURAL DARK WOOD TABLE TEXTURE
+// PROCEDURAL DARK WOOD TABLETOP
 function TableSurface() {
   const texture = useMemo(() => {
-    const width = 256;
-    const height = 256;
-    const data = new Uint8Array(width * height * 4);
+    const size = 256;
+    const data = new Uint8Array(size * size * 4);
 
-    // Stable noise without external images
     const noise = (x: number, y: number) => {
-      const value = Math.sin(
+      const n = Math.sin(
         x * 127.1 + y * 311.7
       ) * 43758.5453;
-      return value - Math.floor(value);
+      return n - Math.floor(n);
     };
 
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const index = (y * width + x) * 4;
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const i = (y * size + x) * 4;
 
-        // Fine, natural-looking linear grain
-        const wave =
+        const grain =
           Math.sin(
-            y * 0.42 +
-            Math.sin(x * 0.035) * 1.8
-          ) * 2.8;
+            y * 0.35 +
+            Math.sin(x * 0.025) * 2
+          ) * 3;
 
-        const fine = noise(x, y) * 3;
-        const grain = wave + fine;
+        const variation = noise(x, y) * 2;
 
-        // Very dark charcoal-brown wood
-        data[index] = Math.max(0, 35 + grain);
-        data[index + 1] = Math.max(0, 30 + grain);
-        data[index + 2] = Math.max(0, 27 + grain);
-        data[index + 3] = 255;
+        const v = grain + variation;
+
+        data[i] = 34 + v;
+        data[i + 1] = 29 + v;
+        data[i + 2] = 27 + v;
+        data[i + 3] = 255;
       }
     }
 
     const tex = new THREE.DataTexture(
       data,
-      width,
-      height,
+      size,
+      size,
       THREE.RGBAFormat
     );
 
@@ -138,6 +167,10 @@ function TableSurface() {
     return tex;
   }, []);
 
+  useEffect(() => {
+    return () => texture.dispose();
+  }, [texture]);
+
   return (
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
@@ -148,22 +181,14 @@ function TableSurface() {
       <meshStandardMaterial
         map={texture}
         color="#d1c8c0"
-        roughness={0.87}
+        roughness={0.92}
         metalness={0}
       />
     </mesh>
   );
 }
 
-// ASSEMBLE BASE + SHADE
-type LampProps = {
-  base: number;
-  shade: number;
-  baseColor: string;
-  shadeColor: string;
-  lit: boolean;
-};
-
+// ASSEMBLE THE LAMP
 function Assembly({
   base,
   shade,
@@ -191,35 +216,27 @@ function Assembly({
         <Part
           url={SHADE_FILES[shade]}
           color={shadeColor}
-          type="shade"
           glow={lit}
+          type="shade"
         />
 
+        {/* SINGLE WARM LIGHT SOURCE INSIDE THE SHADE */}
         {lit && (
-          <>
-            <pointLight
-              position={[0, 0.32, 0]}
-              color="#ffcb87"
-              intensity={5}
-              distance={1.5}
-              decay={2}
-            />
-
-            <pointLight
-              position={[0, 0.12, 0.05]}
-              color="#ffdba7"
-              intensity={1}
-              distance={1.2}
-              decay={2}
-            />
-          </>
+          <pointLight
+            position={[0, 0.32, 0]}
+            color="#ffd5a0"
+            intensity={2.5}
+            distance={1.8}
+            decay={2}
+            castShadow={false}
+          />
         )}
       </group>
     </group>
   );
 }
 
-// COMPLETE BLACK STUDIO
+// MAIN 3D VIEWER
 export default function LampViewer({
   base,
   shade,
@@ -240,59 +257,26 @@ export default function LampViewer({
         alpha: false,
       }}
     >
-      {/* SEAMLESS BLACK BACKGROUND */}
+      {/* BLACK BACKGROUND */}
       <color
         attach="background"
         args={["#080808"]}
       />
 
-      {/* FADE THE FLOOR INTO THE BACKGROUND */}
+      {/* SEAMLESS STUDIO DEPTH */}
       <fog
         attach="fog"
         args={["#080808", 2.5, 12]}
       />
 
-      {/* LOW AMBIENT LIGHT */}
-      <ambientLight intensity={0.38} />
+      {/* EVEN, SHADOW-FREE ENVIRONMENT LIGHTING */}
+      <ambientLight intensity={0.85} />
 
-      {/* MAIN SOFT KEY LIGHT */}
-      <directionalLight
-        position={[3, 4, 3]}
-        intensity={2.8}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.00015}
-        shadow-radius={5}
-        shadow-camera-left={-2.5}
-        shadow-camera-right={2.5}
-        shadow-camera-top={2.5}
-        shadow-camera-bottom={-2.5}
+      <hemisphereLight
+        args={["#ffffff", "#a8a8a8", 0.65]}
       />
 
-      {/* SIDE GRAZING LIGHT - REVEALS FLUTES */}
-      <directionalLight
-        position={[-2.5, 1.8, 0.5]}
-        intensity={1.75}
-        color="#d7e2ff"
-      />
-
-      {/* WARM SIDE RIM LIGHT */}
-      <directionalLight
-        position={[1, 1.5, -3]}
-        intensity={1.5}
-        color="#ffe2bf"
-      />
-
-      {/* FRONT FILL */}
-      <spotLight
-        position={[0.5, 3, 4]}
-        intensity={1.1}
-        angle={0.65}
-        penumbra={1}
-        distance={8}
-      />
-
-      {/* INFINITE DARK TABLE */}
+      {/* INFINITE DARK WOOD SURFACE */}
       <TableSurface />
 
       <Suspense fallback={null}>
@@ -302,6 +286,15 @@ export default function LampViewer({
           baseColor={baseColor}
           shadeColor={shadeColor}
           lit={lit}
+        />
+
+        {/* SOFT CONTACT SHADOW UNDER BASE */}
+        <ContactShadows
+          position={[0, -0.012, 0]}
+          opacity={0.25}
+          scale={2.5}
+          blur={3.5}
+          far={1}
         />
       </Suspense>
 
