@@ -297,9 +297,19 @@ export default function LampViewer({
   castShadow={false}
 />
 
-
-      {/* INFINITE DARK WOOD SURFACE */}
-      <TableSurface />
+     {/* Seamless matte-black studio floor */}
+<mesh
+  rotation={[-Math.PI / 2, 0, 0]}
+  position={[0, -0.015, 0]}
+  receiveShadow
+>
+  <planeGeometry args={[2000, 2000]} />
+  <meshStandardMaterial
+    color="#080808"
+    roughness={1}
+    metalness={0}
+  />
+</mesh>
 
       <Suspense fallback={null}>
         <Assembly
