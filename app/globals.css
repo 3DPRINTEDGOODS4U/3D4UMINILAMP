@@ -19,3 +19,18 @@ html, body {
 .panel {
   color: #242622;
 }
+
+/* Light website with dark 3D studio */
+html, body {
+  background: #f7f6f2;
+  color: #242622;
+}
+
+.visual {
+  background: #080808;
+}
+
+.visualLabel,
+.visualBottom {
+  color: #aaaaaa;
+}
