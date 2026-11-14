@@ -47,7 +47,20 @@ function Assembly({base,shade,baseColor,shadeColor,lit}:{base:number;shade:numbe
 
 export default function LampViewer({base,shade,baseColor,shadeColor,lit}:{base:number;shade:number;baseColor:string;shadeColor:string;lit:boolean}) {
   return <Canvas shadows camera={{position:[1.6,1.2,1.9],fov:35}} gl={{antialias:true}} dpr={[1,1.8]}>
-    <color attach="background" args={["#eae8e3"]}/>
+     <color attach="background" args={["#080808"]} />
+    
+<mesh
+  rotation={[-Math.PI / 2, 0, 0]}
+  position={[0, -0.02, 0]}
+  receiveShadow
+>
+  <planeGeometry args={[200, 200]} />
+  <meshStandardMaterial
+    color="#101010"
+    roughness={0.9}
+    metalness={0.05}
+  />
+</mesh>
     <ambientLight intensity={2.2}/>
     <directionalLight position={[2,3,4]} intensity={2.8} castShadow shadow-mapSize={[1024,1024]}/>
     <Suspense fallback={null}>
