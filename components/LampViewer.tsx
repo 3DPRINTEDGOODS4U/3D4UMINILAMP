@@ -264,9 +264,6 @@ export default function LampViewer({
       />
 
       {/* SEAMLESS STUDIO DEPTH */}
-      <fog
-        attach="fog"
-        args={["#080808", 2.5, 12]}
       />
 
       {/* EVEN, SHADOW-FREE ENVIRONMENT LIGHTING */}
@@ -304,10 +301,9 @@ export default function LampViewer({
   receiveShadow
 >
   <planeGeometry args={[2000, 2000]} />
-  <meshStandardMaterial
-    color="#080808"
-    roughness={1}
-    metalness={0}
+
+<meshBasicMaterial color="#080808" />
+
   />
 </mesh>
 
