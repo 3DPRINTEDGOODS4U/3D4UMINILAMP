@@ -24,7 +24,7 @@ const SHADE_FILES = [
 const BASE_HEIGHTS = [0.3551, 0.345, 0.3449];
 
 // HOW FAR THE SHADE OVERLAPS THE BASE
-const SHADE_OVERLAP = 0.12;
+const SHADE_OVERLAP = 0.10;
 
 type PartProps = {
   url: string;
