@@ -264,7 +264,6 @@ export default function LampViewer({
       />
 
       {/* SEAMLESS STUDIO DEPTH */}
-      />
 
       {/* EVEN, SHADOW-FREE ENVIRONMENT LIGHTING */}
      
@@ -303,8 +302,6 @@ export default function LampViewer({
   <planeGeometry args={[2000, 2000]} />
 
 <meshBasicMaterial color="#080808" />
-
-  />
 </mesh>
 
       <Suspense fallback={null}>
