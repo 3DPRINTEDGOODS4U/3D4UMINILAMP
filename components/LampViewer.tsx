@@ -160,10 +160,10 @@ export default function LampViewer({
 }: LampProps) {
   return (
     <Canvas
-      camera={{
-        position: [1.6, 1.2, 1.9],
-        fov: 35,
-      }}
+     camera={{
+  position: [2.4, 1.65, 2.85],
+  fov: 35,
+}}
       dpr={[1, 1.75]}
       gl={{
         antialias: true,
