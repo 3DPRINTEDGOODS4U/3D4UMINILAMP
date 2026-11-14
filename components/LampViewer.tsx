@@ -270,11 +270,33 @@ export default function LampViewer({
       />
 
       {/* EVEN, SHADOW-FREE ENVIRONMENT LIGHTING */}
-      <ambientLight intensity={0.85} />
+     
+{/* SOFT, EVEN AMBIENT LIGHTING */}
+<ambientLight intensity={0.45} />
 
-      <hemisphereLight
-        args={["#ffffff", "#a8a8a8", 0.65]}
-      />
+<hemisphereLight
+  args={["#ffffff", "#a8a8a8", 0.55]}
+/>
+
+{/* GRAZING LIGHTS TO REVEAL VERTICAL FLUTES */}
+<directionalLight
+  position={[3, 2, 1]}
+  intensity={1.5}
+  castShadow={false}
+/>
+
+<directionalLight
+  position={[-3, 2, -1]}
+  intensity={1.1}
+  castShadow={false}
+/>
+
+<directionalLight
+  position={[0, 2, -3]}
+  intensity={0.7}
+  castShadow={false}
+/>
+
 
       {/* INFINITE DARK WOOD SURFACE */}
       <TableSurface />
