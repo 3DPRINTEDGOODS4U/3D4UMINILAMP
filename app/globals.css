@@ -34,3 +34,137 @@ html, body {
 .visualBottom {
   color: #aaaaaa;
 }
+
+/* ===================================
+   SEAMLESS BLACK CONFIGURATOR THEME
+   =================================== */
+
+html, body {
+  background: #080808;
+  color: #f5f5f2;
+}
+
+/* Header */
+.header {
+  background: #080808;
+  border-bottom: 1px solid #242424;
+}
+
+.brand {
+  color: #f5f5f2;
+}
+
+.headerRight {
+  color: #999999;
+}
+
+/* Entire configurator */
+.workspace,
+.visual {
+  background: #080808;
+}
+
+/* 3D viewer labels */
+.visualLabel,
+.visualBottom {
+  color: #999999;
+}
+
+/* Right-side configuration panel */
+.panel {
+  background: #080808;
+  color: #f5f5f2;
+}
+
+.panel h1 {
+  color: #f5f5f2;
+}
+
+.panel .eyebrow {
+  color: #bca48b;
+}
+
+.intro {
+  color: #a5a5a5;
+}
+
+/* Section dividers */
+.section {
+  border-top: 1px solid #292929;
+}
+
+.sectionHeader b {
+  color: #eaeaea;
+}
+
+.sectionHeader span {
+  color: #999999;
+}
+
+/* Floating selection options */
+.option {
+  background: transparent;
+  color: #eaeaea;
+  border: 1px solid #303030;
+  border-radius: 4px;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.option:hover {
+  background: #181818;
+  border-color: #666666;
+  transform: translateY(-2px);
+}
+
+/* Selected option */
+.option.active {
+  background: #1b1b1b;
+  border: 1px solid #dddddd;
+  color: #ffffff;
+}
+
+.optionNum {
+  color: #777777;
+}
+
+/* Color swatches */
+.swatch.active {
+  border-color: #ffffff;
+}
+
+/* Summary */
+.summary > span {
+  color: #999999;
+}
+
+.summary strong {
+  color: #ffffff;
+}
+
+.summary small {
+  color: #a5a5a5;
+}
+
+/* Main action button */
+.primary {
+  background: #f0f0eb;
+  color: #101010;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.primary:hover {
+  background: #cfcfc9;
+}
+
+/* Other text */
+.textButton {
+  color: #eaeaea;
+}
+
+.fineprint {
+  color: #777777;
+}
