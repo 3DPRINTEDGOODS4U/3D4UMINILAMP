@@ -38,7 +38,7 @@ function Assembly({base,shade,baseColor,shadeColor,lit}:{base:number;shade:numbe
   return <group>
     <Part url={BASE_FILES[base]} color={baseColor}/>
     {/* Provisional attachment position: bottom of shade meets top of base. */}
-    <group position={[0, baseHeight, 0]}>
+   <group position={[0, baseHeight - 0.12, 0]}>
       <Part url={SHADE_FILES[shade]} color={shadeColor} glow={lit}/>
       {lit && <pointLight position={[0,0.26,0]} color="#ffd6a1" intensity={1.2} distance={2} />}
     </group>
